@@ -57,7 +57,6 @@ function createMap() {
 }
 
 function createCoin(i, j) {
-  ctx.save();
   ctx.beginPath();
   ctx.fillStyle = "yellow";
   ctx.arc(
@@ -69,15 +68,11 @@ function createCoin(i, j) {
   );
   ctx.fill();
   ctx.closePath();
-
-  ctx.restore();
 }
 
 function createRect(x, y, width, height, color) {
-  ctx.save();
   ctx.fillStyle = color;
   ctx.fillRect(x, y, width, height);
-  ctx.restore();
 }
 
 // x => j , y => i (remember)
@@ -135,6 +130,7 @@ function renderBoard() {
       }
     }
   }
+  ctx.fillStyle = "black";
 }
 
 function update() {
