@@ -16,11 +16,14 @@ class Pacman {
     this.currFrame = this.currFrame <= this.totalFrames ? this.currFrame : 1;
     this.changeDirection();
     this.moveForward();
-    if (this.checkCollison()) {
-      console.log("collide");
+    if (this.checkCollison() || this.outOfBounds()) {
       this.moveBack();
     }
     // console.log(this.x, this.y);
+  }
+
+  outOfBounds() {
+    return this.x < 0 || this.x > (MAP_COLN - 1) * WALLSIZE;
   }
 
   setDirection(keycode) {
