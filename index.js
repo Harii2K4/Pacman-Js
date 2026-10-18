@@ -1,8 +1,11 @@
 const canvas = document.querySelector("canvas");
 const ctx = canvas.getContext("2d");
+const pacmanImg = document.querySelector("#animations");
+const ghostImg = document.querySelector("#ghost");
 
 //Constants
-const WALLSIZE = 20; //because the animation has 20px width
+const PACMANSIZE = 20; //width animations is 140(width) x 20 (height)
+const WALLSIZE = 20; //because the pacman animation has 20px width
 const WALLCOLOR = "#3e34ee";
 const WALLGAP = WALLSIZE / 1.5;
 const WALLOFFSET = (WALLSIZE - WALLGAP) / 2;
@@ -43,6 +46,7 @@ let map = [
   [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 ];
+
 function createRect(x, y, width, height, color) {
   ctx.save();
   ctx.fillStyle = color;
@@ -52,6 +56,7 @@ function createRect(x, y, width, height, color) {
 
 // x => j , y => i (remember)
 function renderBoard() {
+  ctx.clearRect(0, 0, 500, 500);
   for (let i = 0; i < MAP_ROW; i++) {
     for (let j = 0; j < MAP_COLN; j++) {
       //walls
@@ -103,10 +108,12 @@ function renderBoard() {
 }
 
 function update() {
-  //Todo
+  pacman.update();
 }
+
 function render() {
   renderBoard();
+  pacman.render();
 }
 
 let gameLoop = () => {
@@ -116,10 +123,10 @@ let gameLoop = () => {
 
 let newPacman = () => {
   return new Pacman(
-    WALLSIZE,
-    WALLSIZE,
-    WALLSIZE,
-    WALLSIZE,
+    PACMANSIZE,
+    PACMANSIZE,
+    PACMANSIZE,
+    PACMANSIZE,
     SPEED / FPS,
     DIRECTION_RIGHT,
   );
@@ -127,9 +134,16 @@ let newPacman = () => {
 
 let pacman = newPacman();
 
-// setInterval(gameLoop, 1000 / FPS);
+setInterval(gameLoop, 1000 / FPS);
 
-document.body.addEventListener("keypress", (event) => {
-  let keycode = event.keycode;
+document.body.addEventListener("keydown", (event) => {
+  let keycode = event.code;
+  if (
+    ["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(
+      keycode,
+    )
+  ) {
+    event.preventDefault();
+  }
   pacman.setDirection(keycode);
 });
