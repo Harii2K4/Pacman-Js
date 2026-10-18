@@ -7,6 +7,7 @@ const WALLCOLOR = "#3e34ee";
 const WALLGAP = WALLSIZE / 1.5;
 const WALLOFFSET = (WALLSIZE - WALLGAP) / 2;
 const FPS = 60;
+const SPEED = 75;
 
 const DIRECTION_RIGHT = 1;
 const DIRECTION_DOWN = 2;
@@ -50,7 +51,7 @@ function createRect(x, y, width, height, color) {
 }
 
 // x => j , y => i (remember)
-function drawBoard() {
+function renderBoard() {
   for (let i = 0; i < MAP_ROW; i++) {
     for (let j = 0; j < MAP_COLN; j++) {
       //walls
@@ -105,7 +106,7 @@ function update() {
   //Todo
 }
 function render() {
-  //Todo
+  renderBoard();
 }
 
 let gameLoop = () => {
@@ -113,4 +114,22 @@ let gameLoop = () => {
   render();
 };
 
-drawBoard();
+let newPacman = () => {
+  return new Pacman(
+    WALLSIZE,
+    WALLSIZE,
+    WALLSIZE,
+    WALLSIZE,
+    SPEED / FPS,
+    DIRECTION_RIGHT,
+  );
+};
+
+let pacman = newPacman();
+
+// setInterval(gameLoop, 1000 / FPS);
+
+document.body.addEventListener("keypress", (event) => {
+  let keycode = event.keycode;
+  pacman.setDirection(keycode);
+});
