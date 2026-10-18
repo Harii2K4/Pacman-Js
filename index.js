@@ -4,7 +4,7 @@ const ctx = canvas.getContext("2d");
 //Constants
 const WALLSIZE = 20; //because the animation has 20px width
 const WALLCOLOR = "#3e34ee";
-const WALLGAP = WALLSIZE / 1.1;
+const WALLGAP = WALLSIZE / 1.5;
 const WALLOFFSET = (WALLSIZE - WALLGAP) / 2;
 const FPS = 60;
 
@@ -56,6 +56,46 @@ function drawBoard() {
       //walls
       if (map[i][j] === 1) {
         createRect(j * WALLSIZE, i * WALLSIZE, WALLSIZE, WALLSIZE, WALLCOLOR);
+
+        if (j > 0 && map[i][j - 1] === 1) {
+          createRect(
+            j * WALLSIZE,
+            i * WALLSIZE + WALLOFFSET,
+            WALLGAP + WALLOFFSET,
+            WALLGAP,
+            "black",
+          );
+        }
+
+        if (j < MAP_COLN - 1 && map[i][j + 1] === 1) {
+          createRect(
+            j * WALLSIZE + WALLOFFSET,
+            i * WALLSIZE + WALLOFFSET,
+            WALLGAP + WALLOFFSET,
+            WALLGAP,
+            "black",
+          );
+        }
+
+        if (i > 0 && map[i - 1][j] === 1) {
+          createRect(
+            j * WALLSIZE + WALLOFFSET,
+            i * WALLSIZE,
+            WALLGAP,
+            WALLGAP + WALLOFFSET,
+            "black",
+          );
+        }
+
+        if (i < MAP_ROW - 1 && map[i + 1][j] === 1) {
+          createRect(
+            j * WALLSIZE + WALLOFFSET,
+            i * WALLSIZE + WALLOFFSET,
+            WALLGAP,
+            WALLGAP + WALLOFFSET,
+            "black",
+          );
+        }
       }
     }
   }
