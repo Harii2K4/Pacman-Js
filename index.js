@@ -25,6 +25,7 @@ let visited = new Set();
 let gameLoopID = null;
 let pacman = null;
 let map = null;
+let isRunnning = false;
 
 //Map
 function createMap() {
@@ -160,22 +161,78 @@ let newPacman = () => {
     DIRECTION_RIGHT,
   );
 };
+
 let startGame = () => {
   pacman = newPacman();
   map = createMap();
+  isRunnning = true;
   gameLoopID = setInterval(gameLoop, 1000 / FPS);
 };
+
 let resetGame = () => {
+  if (isRunnning === false) return;
+
+  isRunnning = false;
   if (gameLoopID != null) {
     clearInterval(gameLoopID);
   }
 
-  startGame();
+  ctx.save();
+  ctx.fillStyle = "rgba(0,0,0,0.75)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.restore();
+
+  ctx.save();
+  ctx.textBaseline = "middle";
+  ctx.textAlign = "center";
+
+  ctx.font = '32px "Press Start 2P", monospace';
+  ctx.fillStyle = "#FF0000";
+  ctx.fillText(
+    `GAME OVER`,
+    (MAP_COLN / 2) * WALLSIZE,
+    (MAP_ROW / 2) * WALLSIZE,
+  );
+
+  ctx.font = '16px "Press Start 2P", monospace';
+  ctx.fillStyle = "#FFD700";
+  ctx.fillText(
+    `SCORE ${String(pacman.score).padStart(4, "0")}`,
+    (MAP_COLN / 2) * WALLSIZE,
+    (MAP_ROW / 2) * WALLSIZE + 2 * WALLSIZE,
+  );
+
+  ctx.fillStyle = "#00FFFF";
+  ctx.fillText(
+    `Press Enter For New Game`,
+    (MAP_COLN / 2) * WALLSIZE,
+    (MAP_ROW / 2) * WALLSIZE + 4 * WALLSIZE,
+  );
+  ctx.restore();
+
+  ctx.fillRect(0, MAP_ROW * WALLSIZE, 500, 32);
 };
-startGame();
+
+function welcomeScreen() {
+  ctx.save();
+  ctx.textBaseline = "middle";
+  ctx.textAlign = "center";
+
+  ctx.font = "bold 20px serif";
+  ctx.fillStyle = "#F5F5F5";
+  ctx.fillText(
+    `Press Enter To Start And Escape To Stop`,
+    (MAP_COLN / 2) * WALLSIZE,
+    (MAP_ROW / 2) * WALLSIZE,
+  );
+  ctx.restore();
+}
+
+welcomeScreen();
 
 document.body.addEventListener("keydown", (event) => {
   let keycode = event.code;
+
   if (
     ["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(
       keycode,
@@ -183,10 +240,14 @@ document.body.addEventListener("keydown", (event) => {
   ) {
     event.preventDefault();
   }
-  if (keycode === "Escape") {
+
+  if (keycode === "Escape" && isRunnning === true) {
     resetGame();
   }
-  console.log(keycode);
+
+  if (keycode === "Enter" && isRunnning === false) {
+    startGame();
+  }
 
   pacman.setDirection(keycode);
 });
