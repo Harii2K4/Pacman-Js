@@ -9,6 +9,7 @@ class Pacman {
     this.newDirection = direction;
     this.currFrame = 1;
     this.totalFrames = 7;
+    this.score = 0;
     setInterval(() => this.currFrame++, 100);
   }
 
@@ -19,7 +20,22 @@ class Pacman {
     if (this.checkCollison() || this.outOfBounds()) {
       this.moveBack();
     }
+    this.eatCoin();
     // console.log(this.x, this.y);
+    // console.log(this.score);
+    // console.log(visited);
+  }
+
+  eatCoin() {
+    // let x = this.getLeftIdx();
+    // let y = this.getTopIdx();
+    let x = Math.floor((this.x + this.width / 2) / PACMANSIZE);
+    let y = Math.floor((this.y + this.height / 2) / PACMANSIZE);
+
+    if (map[y][x] == 0) {
+      this.score++;
+      map[y][x] = -1;
+    }
   }
 
   outOfBounds() {
@@ -27,7 +43,6 @@ class Pacman {
   }
 
   setDirection(keycode) {
-    console.log(keycode);
     let tempDir = null;
     if (keycode === "ArrowLeft" || keycode === "KeyA") {
       tempDir = DIRECTION_LEFT;
@@ -132,6 +147,17 @@ class Pacman {
       this.y,
       this.width,
       this.height,
+    );
+    ctx.restore();
+    //render score
+    ctx.save();
+    ctx.font = '16px "Press Start 2P", monospace';
+    ctx.fillStyle = "#FFFFFF";
+    ctx.textBaseline = "middle";
+    ctx.fillText(
+      `SCORE ${String(this.score).padStart(4, "0")}`,
+      10,
+      MAP_ROW * WALLSIZE + 20,
     );
     ctx.restore();
   }
