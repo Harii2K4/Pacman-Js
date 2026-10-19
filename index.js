@@ -207,6 +207,9 @@ let startGame = () => {
   pacman = newPacman();
   map = createMap();
   isRunnning = true;
+  map = null;
+  prevTime = null;
+  currBlinkAngle = START_ANGLE;
   gameLoopID = setInterval(gameLoop, 1000 / FPS);
 };
 
@@ -217,10 +220,6 @@ let resetGame = () => {
   timeAcc = 0;
   frames = 0;
   isRunnning = false;
-  map = null;
-  isRunnning = false;
-  prevTime = null;
-  currBlinkAngle = START_ANGLE;
 
   if (gameLoopID != null) {
     clearInterval(gameLoopID);
@@ -260,6 +259,7 @@ let resetGame = () => {
   ctx.restore();
 
   ctx.fillRect(0, MAP_ROW * WALLSIZE, 500, 32);
+  clearInterval(pacman.intervalId);
   pacman = null;
 };
 
