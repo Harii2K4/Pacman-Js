@@ -20,12 +20,24 @@ const DIRECTION_UP = 4;
 const MAP_ROW = 23;
 const MAP_COLN = 21;
 
+const COIN_RADIUS = WALLSIZE / 4;
+const MIN_ANGLE = 45;
+const MAX_ANGLE = 180 - MIN_ANGLE;
+const START_ANGLE = 90; //Sin 90 is 1
+const TIME_FOR_BLINK = 2000; //2 secs
+const ANGLE_AMPLIFIER = (MAX_ANGLE - MIN_ANGLE) / TIME_FOR_BLINK; //Example:150 - 30 = 120 in 2000 millie seconsds so  0.06 per millie second
+
+const CLAMP_DT = 50; // max dt
+
 //vars
-let visited = new Set();
 let gameLoopID = null;
 let pacman = null;
 let map = null;
 let isRunnning = false;
+let prevTime = null;
+let currBlinkAngle = START_ANGLE;
+let timeAcc = 0;
+let frames = 0;
 
 //Map
 function createMap() {
@@ -56,18 +68,20 @@ function createMap() {
   ];
 }
 
-function createCoin(i, j) {
+function createCoin(i, j, radius = COIN_RADIUS) {
+  ctx.save();
   ctx.beginPath();
   ctx.fillStyle = "yellow";
   ctx.arc(
     j * WALLSIZE + WALLSIZE / 2,
     i * WALLSIZE + WALLSIZE / 2,
-    WALLSIZE / 4,
+    radius,
     0,
     Math.PI * 2,
   );
   ctx.fill();
   ctx.closePath();
+  ctx.restore();
 }
 
 function createRect(x, y, width, height, color) {
@@ -75,9 +89,38 @@ function createRect(x, y, width, height, color) {
   ctx.fillRect(x, y, width, height);
 }
 
+function getDeltaTime() {
+  if (prevTime == null) {
+    prevTime = performance.now();
+    return 0;
+  }
+  let currTime = performance.now();
+  let deltaTime = Math.min(currTime - prevTime, CLAMP_DT);
+  prevTime = currTime;
+  return deltaTime;
+}
+
+function updateBlinkAngle() {
+  let deltaTime = getDeltaTime();
+  timeAcc += deltaTime;
+  // console.log(deltaTime, currBlinkAngle);
+  let incrAngle = currBlinkAngle + ANGLE_AMPLIFIER * deltaTime;
+  if (incrAngle > MAX_ANGLE) {
+    //translates the MIN_ANGLE to the origin : use when we dont have clamp dt
+    // let extraAngle = (incrAngle - MIN_ANGLE) % (MAX_ANGLE - MIN_ANGLE);
+    currBlinkAngle = MIN_ANGLE + (incrAngle % MAX_ANGLE);
+  } else {
+    currBlinkAngle = incrAngle;
+  }
+}
+
 // x => j , y => i (remember)
 function renderBoard() {
+  let angleRadians = (Math.PI * currBlinkAngle) / 180;
+  // console.log(currBlinkAngle);
+  let coinRadius = COIN_RADIUS * Math.sin(angleRadians);
   ctx.clearRect(0, 0, 500, 500);
+
   for (let i = 0; i < MAP_ROW; i++) {
     for (let j = 0; j < MAP_COLN; j++) {
       //walls
@@ -126,7 +169,7 @@ function renderBoard() {
       }
       //coins
       else if (map[i][j] === 0) {
-        createCoin(i, j);
+        createCoin(i, j, coinRadius);
       }
     }
   }
@@ -134,7 +177,9 @@ function renderBoard() {
 }
 
 function update() {
+  frames++;
   pacman.update();
+  updateBlinkAngle();
 }
 
 function render() {
@@ -167,8 +212,16 @@ let startGame = () => {
 
 let resetGame = () => {
   if (isRunnning === false) return;
+  console.log(`Sanity check : ${timeAcc / frames}`);
 
+  timeAcc = 0;
+  frames = 0;
   isRunnning = false;
+  map = null;
+  isRunnning = false;
+  prevTime = null;
+  currBlinkAngle = START_ANGLE;
+
   if (gameLoopID != null) {
     clearInterval(gameLoopID);
   }
@@ -207,6 +260,7 @@ let resetGame = () => {
   ctx.restore();
 
   ctx.fillRect(0, MAP_ROW * WALLSIZE, 500, 32);
+  pacman = null;
 };
 
 function welcomeScreen() {
@@ -237,13 +291,15 @@ document.body.addEventListener("keydown", (event) => {
     event.preventDefault();
   }
 
-  if (keycode === "Escape" && isRunnning === true) {
-    resetGame();
+  if (isRunnning === true) {
+    if (keycode === "Escape") {
+      resetGame();
+      return;
+    }
+    pacman.setDirection(keycode);
   }
 
   if (keycode === "Enter" && isRunnning === false) {
     startGame();
   }
-
-  pacman.setDirection(keycode);
 });
