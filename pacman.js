@@ -10,7 +10,7 @@ class Pacman {
     this.currFrame = 1;
     this.totalFrames = 7;
     this.score = 0;
-    setInterval(() => this.currFrame++, 100);
+    this.intervalId = setInterval(() => this.currFrame++, 100);
   }
 
   update() {
